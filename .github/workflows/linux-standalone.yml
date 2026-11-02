@@ -1,0 +1,76 @@
+name: Linux standalone
+
+# Builds the MAME library and the stand-alone applications of all plugins for x86-64 Linux,
+# and uploads them as an artifact.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    env:
+      # ccache for MAME (its makefile takes these from the environment) and for CMake; MAME's
+      # precompiled header is turned off, ccache can't reuse objects built with it
+      OVERRIDE_CC: ccache gcc
+      OVERRIDE_CXX: ccache g++
+      PRECOMPILE: 0
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 6G
+      CCACHE_COMPRESS: 1
+      CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime
+      FORMATS: Standalone
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # shallow, MAME's history alone is 2 GB
+        submodules: recursive
+        fetch-depth: 1
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          ccache ninja-build cmake pkg-config python3 \
+          libgl1-mesa-dev xorg-dev libasound2-dev libfreetype-dev libfontconfig-dev libcurl4-openssl-dev \
+          libboost-dev libluajit-5.1-dev libusb-1.0-0-dev
+
+    - name: Restore the compiler cache
+      uses: actions/cache@v4
+      with:
+        path: .ccache
+        key: ccache-linux-x64-${{ github.sha }}
+        restore-keys: ccache-linux-x64-
+
+    - name: Build
+      run: |
+        ccache --zero-stats
+        JOBS=$(nproc) ./build.sh
+        ccache --show-stats
+
+    - name: Package
+      run: |
+        dir=mamuse-linux-x64-standalone
+        mkdir -p "$dir"
+        cp gearmulator/bin/plugins/Release/Standalone/* "$dir/"
+        cp README.md LICENSE "$dir/"
+        # a tarball keeps the files executable, the artifact zip would not
+        tar -czf "$dir.tar.gz" "$dir"
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: mamuse-linux-x64-standalone
+        path: mamuse-linux-x64-standalone.tar.gz
+        retention-days: 30

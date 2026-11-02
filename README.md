@@ -70,7 +70,7 @@ FORMATS="CLAP VST3 Standalone" ./build.sh
 ./gearmulator/bin/plugins/Release/Standalone/MAME-TX81Z
 ```
 
-The applications are in `gearmulator/bin/plugins/Release/Standalone`, next to the MAME library they load. "Options" in the window's title bar chooses the audio device and the MIDI inputs, and saves or loads the state to a file. The application keeps the state of the machine, its devices and the CtrlrX panels in `~/.config/MAME-<machine>.settings` and starts from it the next time; "Reset to default state" starts the machine afresh. A right click on the machine's panel opens the plugin's menu with "Settings..." (more MIDI ports, for example) and "CtrlrX Panel...".
+The applications are in `gearmulator/bin/plugins/Release/Standalone`, next to the MAME library they load. Builds for x86-64 Linux are made by the [Linux standalone](https://github.com/hjanetzek/mamuse/actions/workflows/linux-standalone.yml) workflow on every push to `main`: the run's artifact has the applications and the library, and needs LuaJIT 2.1 and libusb 1.0 installed (`libluajit-5.1-2 libusb-1.0-0` on Debian and Ubuntu). "Options" in the window's title bar chooses the audio device and the MIDI inputs, and saves or loads the state to a file. The application keeps the state of the machine, its devices and the CtrlrX panels in `~/.config/MAME-<machine>.settings` and starts from it the next time; "Reset to default state" starts the machine afresh. A right click on the machine's panel opens the plugin's menu with "Settings..." (more MIDI ports, for example) and "CtrlrX Panel...".
 
 ## Data folder
 
