@@ -2,7 +2,7 @@
 
 Hardware synthesizers emulated by [MAME](https://www.mamedev.org), played as CLAP and VST3 instrument plugins.
 
-mamuse (ma'muse) is MAME + muse, and French for "my muse".
+mamuse (ma'muse) is MAME + muse (see also [the name](#the-name)).
 
 ![The Wersi EX-20 in MAME-EX20, its front panel drawn from MAME's layout](docs/images/ex20.png)
 
@@ -117,3 +117,11 @@ A file that doesn't parse leaves the compiled layout on screen; MAME's error, wi
 ## Licence
 
 MAME is licensed under the GPL-2.0-or-later (with parts under BSD-3-Clause), CtrlrX under the BSD-3-Clause or GPL-2.0-or-later, gearmulator under the GPL-3.0. The plugins combine both and are distributed under the GPL-3.0, see [LICENSE](LICENSE).
+
+## The name
+
+Like the citrus fruits, mamuse is a cross: of the **ma**ndarin and the pampel**muse**, the German name of the pomelo. The two are the parents of the orange and the bitter orange, and the orange crossed back with a mandarin or the pomelo gives the clementine and the grapefruit.
+
+![Family tree of the citrus fruits: mandarin (Mandarine) and pomelo (Pampelmuse) as parents of the orange and the bitter orange, and of the clementine and the grapefruit through the orange](docs/images/citrus-family-tree.png)
+
+*Genetic relationships of the important citrus fruits, after Riccardo Velasco and Concetta Licciardello, "A genealogy of the citrus family", Nature Biotechnology 32(7), 2014. Image by [Furfur](https://commons.wikimedia.org/wiki/User:Furfur), [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Zitrusfrucht-Stammbaum.svg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).*
