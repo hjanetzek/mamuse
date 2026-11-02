@@ -109,6 +109,14 @@ Milestone 4 is done (API 9): the machine's adjusters are the plugin's parameters
 - A product's `parameterDescriptions_mame.json` lists them as parameters named as MAME names them; `mpctest` writes it with `MPCTEST_FIELDS=<file>`. The LinnDrum has 44, the TX81Z and EX-20 none. The controller sends parameter changes to the field of the same name and reads the values back at 30 Hz.
 - Checked in the LinnDrum Standalone: a parameter change moves the panel's knob, a drag on the panel changes the parameter, and restoring a saved plugin state brings both back. MIDI learn works on any parameter of the framework and wasn't tried separately.
 
+Milestone 5 is done. The library has the Ensoniq VFX family (`ensoniq/esq5505.cpp`: `vfx`, `vfxsd`, `sd1`, `sd132`), and the product MAME-SD1 runs the 32-voice SD-1 (`sd132`). All four boot and play, and their panels match MAME's rendering exactly through the description. The warning their scripts hide (the item `plugin_warning`, set to state 0) is hidden. What their "keys and sliders" script does still has to be done natively: its calls name the items and ports, e.g. `SliderHandler:create(view, "slider_volume", "slider_knob_volume", "panel:analog_volume")` for a slider moving its knob item and setting an analog field (`IPT_PADDLE`), the wheels with spring-back, and `KeyboardHandler:create(view, "full_keyboard_background", "full_keyboard_key_", "panel:key_", 3, 5)` for keys pressing `panel:key_<n>`. The plugin's `emulator_info::layout_script_cb` receives the script text, so the calls can be read from it.
+
+Done since: the sliders and wheels need nothing of their own, as their knob items are animated by their analog fields and `plugin_layout_controls` treats them as sliders; releasing one only springs back a self-centering field (`PORT_CENTERDELTA`, the pitch wheel), others keep their value. The keys come from the script's `KeyboardHandler:create` calls, read from the script text: the items `<key prefix><n>` press the analog fields `<port prefix><n>` with a velocity from how far down the key is clicked (pressure, which the script also sends, is left out). A key clicked on the SD-1's panel plays and stops when let go.
+
+The PSR-60 and PSR-70 are in the library too, with the product MAME-PSR70; its layout has no script.
+
+The scripted layouts showed how little their Lua does. Of the 44 machines Vintage Emulator Studio lists, 17 have scripted layouts, all with one of the two script libraries, and each only sets up one to three controls and hides the warning: a knob (vertical drag, with a turning dot on the LinnDrum), a slider, a slider that springs back (pitch wheels), a data entry knob over a counter, and the Ensoniq keyboard. Running MAME's Lua engine, as Vintage Emulator Studio does, would bring exactly that behaviour but nothing these machines need; milestone 6 moves the controls to gearmulator instead.
+
 ## Milestones
 
 1. **API and check tool.** `mp_layout_describe`, `mp_layout_element_image`, `mp_layout_states` and `mp_layout_screen` in the library. mpctest composes a frame from them in plain C and compares it with MAME's own rendering. The difference should be small, which validates the description before any GUI work.
@@ -116,6 +124,31 @@ Milestone 4 is done (API 9): the machine's adjusters are the plugin's parameters
 3. **EX-20 and LinnDrum.** Many lamps and buttons; animation, knobs and sliders, `simplecounter`, `led7seg` and collections. The LinnDrum's knob dots replace the counters, as its script does.
 4. **Parameters.** Knobs and sliders as gearmulator parameters, saved with the state.
 5. **More layouts.** The Ensoniq keys and sliders, skins that add gearmulator widgets around or over a layout, and a check over the music layouts in MAME for anything still missing.
+6. **Controls in gearmulator.** The layouts' knobs, sliders, wheels and keyboards become gearmulator controls bound to parameters, described per machine instead of by layout scripts; MAME only draws the static artwork and the screens and reports lamps and button states. See below.
+
+## Milestone 6: controls in gearmulator
+
+The direction from here: the layout's controls leave MAME's layout handling and become gearmulator's. MAME keeps what only it can do, drawing the artwork and screens and running the machine; what the user turns, drags and plays is gearmulator's, with its skins, parameters, automation and MIDI learn.
+
+### Why
+
+- The layout scripts are thin. The controls they set up are of six kinds (knob, slider, sprung slider, data entry knob, keyboard, plus hiding the warning), one to three per layout. A short per-machine description says the same.
+- The current native handling finds controls only where the layout binds items to inputs (`animate inputtag`, `inputtag` of an adjuster). The MPC60, MPC3000, the Akai samplers and the ESQ-1 don't: their scripts move the knob items themselves (`set_bounds_callback`), so their controls do nothing in muse yet.
+- Controls drawn by MAME can't follow the skin: the LinnDrum's turning knob dot, for example, is the script's, and missing without it.
+
+### Design
+
+- **Control descriptions per machine.** A file in the product's folder (`controls.json` next to `parameterDescriptions_mame.json`) lists the controls: the layout item ids they cover (the click area, the moving knob or cap), the kind (`knob`, `slider`, `sprungSlider`, `encoder`, `keyboard`), the MAME port and field, direction and range. `mpctest` writes a first version from the layout's script calls, which name exactly these (`add_knob(...)`, `add_slider(...)`, `add_simplecounter_knob(...)`, `SliderHandler:create(...)`, `KeyboardHandler:create(...)`); it's checked and committed like the parameter descriptions, and can be written by hand for layouts without a script.
+- **Parameters for every control.** Besides the adjusters (milestone 4), the analog fields the controls drive become parameters too: the Ensoniq sliders and wheels, the MPC data entry, the keyboard's keys excepted, which stay input. The library lists them with the adjusters (`mp_field_*` extended to analog fields, with their centring), and keeps their values with the NVRAM data like the adjusters'.
+- **gearmulator draws and drags them.** The native layout view hides the items a control covers and puts a gearmulator widget in their place, at the item's bounds: `ElemKnob` and slider widgets bound to the parameter, styled by the skin (MAME's element image of the item can stay as the widget's background). Dragging, spring-back and fine adjustment are the widget's; the value goes to MAME as a parameter change. The keyboard becomes a keyboard widget sending notes, as MIDI or through the key fields.
+- **MAME's part** is the static artwork, screens, lamps and button states (`mp_layout_states`), and the inputs. `plugin_layout_controls` remains for the bitmap panel and machines without a control description.
+
+### Steps
+
+1. Library: analog fields in `mp_field_*` (with centring); `mpctest` writes `controls.json` from the scripts' calls.
+2. gearmulator: controls from `controls.json` as widgets over the native layout, bound to parameters; the LinnDrum first (knobs with their dots, sliders), then the MPC60 and an Akai sampler, which need it most.
+3. Sprung sliders and the Ensoniq keyboard; the SD-1 and Prophet-5.
+4. Skins: control styles per product, and the native layout as the default once it covers the products.
 
 ## Open questions
 
@@ -127,8 +160,3 @@ Milestone 4 is done (API 9): the machine's adjusters are the plugin's parameters
 ## Not covered
 
 The LinnDrum's CPU load (about 40 % of a core) comes from its analog audio emulation, not from the panel, and this plan doesn't change it.
-
-Milestone 5 is under way. The library has the Ensoniq VFX family (`ensoniq/esq5505.cpp`: `vfx`, `vfxsd`, `sd1`, `sd132`), and the product MAME-SD1 runs the 32-voice SD-1 (`sd132`). All four boot and play, and their panels match MAME's rendering exactly through the description. The warning their scripts hide (the item `plugin_warning`, set to state 0) is hidden. What their "keys and sliders" script does still has to be done natively: its calls name the items and ports, e.g. `SliderHandler:create(view, "slider_volume", "slider_knob_volume", "panel:analog_volume")` for a slider moving its knob item and setting an analog field (`IPT_PADDLE`), the wheels with spring-back, and `KeyboardHandler:create(view, "full_keyboard_background", "full_keyboard_key_", "panel:key_", 3, 5)` for keys pressing `panel:key_<n>`. The plugin's `emulator_info::layout_script_cb` receives the script text, so the calls can be read from it.
-
-Done since: the sliders and wheels need nothing of their own, as their knob items are animated by their analog fields and `plugin_layout_controls` treats them as sliders; releasing one only springs back a self-centering field (`PORT_CENTERDELTA`, the pitch wheel), others keep their value. The keys come from the script's `KeyboardHandler:create` calls, read from the script text: the items `<key prefix><n>` press the analog fields `<port prefix><n>` with a velocity from how far down the key is clicked (pressure, which the script also sends, is left out). A key clicked on the SD-1's panel plays and stops when let go.
-
