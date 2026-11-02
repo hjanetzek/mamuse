@@ -145,7 +145,7 @@ The direction from here: the layout's controls leave MAME's layout handling and 
 
 ### Steps
 
-1. Library: analog fields in `mp_field_*` (with centring); `mpctest` writes `controls.json` from the scripts' calls.
+1. Library: analog fields in `mp_field_*` (with centring); `mpctest` writes `controls.json` from the scripts' calls. *Done (API 10):* `mp_field` has flags (`MP_FIELD_ANALOG`, `MP_FIELD_CENTERING`) and the list has the analog fields; the description has the items' ids; `mp_layout_control_count`/`_info` list the controls, found through the layout's bindings and the script libraries' calls (literal arguments, and `"text" .. i` expanded over the indices whose items and port exist; a script's call refines what the bindings found). The analog fields of controls, except keys, are kept with the NVRAM data like the adjusters. `MPCTEST_CONTROLS=<file>` writes `controls.json`, `MPCTEST_FIELDS` now adds the controls' analog fields and leaves out adjusters named "Unused". The LinnDrum has 41 controls (9 knobs, 32 sliders), the SD-1 4 sliders (the pitch wheel sprung) and its keyboard, the PSR-70 7 sliders; their products got `controls.json` and new parameter descriptions. The ESQ-1, whose script moves its slider items itself, is still untested (no ROMs here).
 2. gearmulator: controls from `controls.json` as widgets over the native layout, bound to parameters; the LinnDrum first (knobs with their dots, sliders), then the MPC60 and an Akai sampler, which need it most.
 3. Sprung sliders and the Ensoniq keyboard; the SD-1 and Prophet-5.
 4. Skins: control styles per product, and the native layout as the default once it covers the products.
