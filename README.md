@@ -1,16 +1,18 @@
-# muse
+# mamuse
 
 Hardware synthesizers emulated by [MAME](https://www.mamedev.org), played as CLAP and VST3 instrument plugins.
+
+mamuse (ma'muse) is MAME + muse, and French for "my muse".
 
 ![The Wersi EX-20 in MAME-EX20, its front panel drawn from MAME's layout](docs/images/ex20.png)
 
 ## Goals
 
-muse is meant to make work on MAME's synthesizer drivers easier and more fun, and to let AI agents do much of the layout work:
+mamuse is meant to make work on MAME's synthesizer drivers easier and more fun, and to let AI agents do much of the layout work:
 
 - **A driver in a DAW.** A machine is played from a sequencer, with MIDI, automation and saved projects, instead of from MAME's frontend. The library and the test harness (`mame/src/osd/plugin`, `mpctest`) run a machine headless, render its audio offline and deterministically, and draw its panel, for checks that compare runs.
 - **Layouts without compiling.** A layout file in the machine's data folder replaces the compiled one, and is reloaded within half a second of each change while the machine keeps running (see [Layout development](#layout-development)). The knobs and sliders that layouts leave to Lua scripts work without them.
-- **Automated layout work.** The plugins come with gearmulator's MCP server, through which an agent such as Claude Code drives a running plugin: screenshots of the panel, clicks and drags on its controls, MIDI and SysEx, parameters, and recordings of its audio. Together with the layout reload, an agent can edit a layout, look at the result, try its controls and listen to the machine, without anyone in between. Much of muse itself was developed and checked this way. The server is switched on per plugin with `<VALUE name="enableMcpServer" val="1"/>` in `~/.local/share/The Usual Suspects/<plugin>/config/<plugin>.xml`; running instances list themselves with their ports in `~/.gearmulator_mcp.json`.
+- **Automated layout work.** The plugins come with gearmulator's MCP server, through which an agent such as Claude Code drives a running plugin: screenshots of the panel, clicks and drags on its controls, MIDI and SysEx, parameters, and recordings of its audio. Together with the layout reload, an agent can edit a layout, look at the result, try its controls and listen to the machine, without anyone in between. Much of mamuse itself was developed and checked this way. The server is switched on per plugin with `<VALUE name="enableMcpServer" val="1"/>` in `~/.local/share/The Usual Suspects/<plugin>/config/<plugin>.xml`; running instances list themselves with their ports in `~/.gearmulator_mcp.json`.
 
 The plugins take MIDI from the host and return the machine's audio. The machine's front panel is shown the way MAME draws it from its layout, and it can be used with the mouse. The machine's NVRAM (its patch memory) is saved with the host project.
 
@@ -40,9 +42,9 @@ MAME's LinnDrum layout leaves its knobs and mixer sliders to a Lua script, which
 
 | Path | Contents |
 |---|---|
-| `mame/` | MAME fork, branch `muse-plugin`. `src/osd/plugin` is the plugin OSD and the C API (`mame_plugin.h`) of `libmame_synths.so`. `src/mame/synths.flt` lists the drivers that go into the library. |
-| `CtrlrX/` | [muse-ctrlrx](https://github.com/hjanetzek/muse-ctrlrx), branch `muse`: CtrlrX without what muse doesn't use, synced with upstream. `muse/` has the build of the library the plugins link and the script that merges upstream. |
-| `gearmulator/` | [muse-gearmulator](https://github.com/hjanetzek/muse-gearmulator), the gearmulator fork, branch `mame`. `source/mame/mameLib` runs a machine through the C API, `source/mame/mameJucePlugin` is the plugin shared by all machines, and each `source/mame/<machine>JucePlugin` folder is one plugin product. |
+| `mame/` | [MAME fork](https://github.com/hjanetzek/mame), branch `muse-plugin`. `src/osd/plugin` is the plugin OSD and the C API (`mame_plugin.h`) of `libmame_synths.so`. `src/mame/synths.flt` lists the drivers that go into the library. |
+| `CtrlrX/` | [mamuse-ctrlrx](https://github.com/hjanetzek/mamuse-ctrlrx), branch `muse`: CtrlrX without what mamuse doesn't use, synced with upstream. `muse/` has the build of the library the plugins link and the script that merges upstream. |
+| `gearmulator/` | [mamuse-gearmulator](https://github.com/hjanetzek/mamuse-gearmulator), the gearmulator fork, branch `mame`. `source/mame/mameLib` runs a machine through the C API, `source/mame/mameJucePlugin` is the plugin shared by all machines, and each `source/mame/<machine>JucePlugin` folder is one plugin product. |
 | `docs/` | Notes on the MAME instruments. |
 
 ## Building
@@ -50,8 +52,8 @@ MAME's LinnDrum layout leaves its knobs and mixer sliders to a Lua script, which
 Linux only for now. You need a C++17 compiler, CMake, Ninja, what MAME and JUCE need to build, and boost, LuaJIT and libusb for CtrlrX (on Arch, for example, `sdl2 alsa-lib freetype2 fontconfig libx11 libxrandr libxinerama libxcursor mesa boost luajit libusb`).
 
 ```sh
-git clone --recursive https://github.com/hjanetzek/muse.git
-cd muse
+git clone --recursive https://github.com/hjanetzek/mamuse.git
+cd mamuse
 ./build.sh            # or: ./build.sh install
 ```
 

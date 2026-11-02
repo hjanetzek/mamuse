@@ -1,12 +1,12 @@
-# CtrlrX in muse
+# CtrlrX in mamuse
 
-[CtrlrX](https://github.com/damiensellier/CtrlrX) (Damien Sellier's continuation of Roman Kubiak's Ctrlr) hosts editor panels for MIDI hardware: a panel is a set of controls that send MIDI (mostly SysEx), with Lua scripts for anything more, such as receiving and sending patch banks. Panels exist for several machines that MAME emulates, so CtrlrX could give the muse plugins a patch editor and librarian.
+[CtrlrX](https://github.com/damiensellier/CtrlrX) (Damien Sellier's continuation of Roman Kubiak's Ctrlr) hosts editor panels for MIDI hardware: a panel is a set of controls that send MIDI (mostly SysEx), with Lua scripts for anything more, such as receiving and sending patch banks. Panels exist for several machines that MAME emulates, so CtrlrX could give the mamuse plugins a patch editor and librarian.
 
 This is an analysis of CtrlrX 5.6.36 (`d35edd22`, 2026-10-21) and of the decision how to use it.
 
 ## CtrlrX
 
-- Licence: BSD-3-Clause or GPL-2.0-or-later, so it can be combined with muse (GPL-3.0).
+- Licence: BSD-3-Clause or GPL-2.0-or-later, so it can be combined with mamuse (GPL-3.0).
 - Actively maintained, about one commit a week.
 - About 68k lines of its own code:
 
@@ -41,11 +41,11 @@ Panel files are a zlib-compressed binary JUCE `ValueTree` (`.bpanelz`) or XML (`
 | DW-8000, Juno-106, JX-8P, MKS-7, MKS-50, D-50, JV-880, DX7, DX11 | no sound yet | panels exist | | |
 | FB-01, DX100, MU50, Poly-800, EX-20 | in the library | no panel | | |
 
-Licences of the collections: dnaldoog's panels are BSD-3-Clause, the Sequential/DSI panels GPL-3.0. The unityconstruct collection is marked BSD-3-Clause but was gathered from many authors, and Roman Kubiak's original panels have no licence file. Only panels with a clear licence can be distributed with muse, others have to be added by the user.
+Licences of the collections: dnaldoog's panels are BSD-3-Clause, the Sequential/DSI panels GPL-3.0. The unityconstruct collection is marked BSD-3-Clause but was gathered from many authors, and Roman Kubiak's original panels have no licence file. Only panels with a clear licence can be distributed with mamuse, others have to be added by the user.
 
 ## Options
 
-1. **CtrlrX next to the plugin.** The CtrlrX VST3 in the DAW sends its MIDI to a muse plugin, the plugin's MIDI output (`mp_midi_output`) goes back for patch dumps. Needs no code and shows whether the panels work with the emulation.
+1. **CtrlrX next to the plugin.** The CtrlrX VST3 in the DAW sends its MIDI to a mamuse plugin, the plugin's MIDI output (`mp_midi_output`) goes back for patch dumps. Needs no code and shows whether the panels work with the emulation.
 2. **Panels as data.** gearmulator has a patch manager (patch database, banks, tags, SysEx drag and drop, with an RmlUi UI) and describes parameters and their SysEx in `parameterDescriptions_*.json`. A converter from panels to that JSON and an RML layout handles panels that are plain SysEx, such as Lime. Each machine needs C++ to read and write its patch dumps, and the Lua logic of the panels is lost.
 3. **The CtrlrX runtime in the plugin.** Panels run as they are, including their Lua scripts.
 
@@ -53,7 +53,7 @@ Licences of the collections: dnaldoog's panels are BSD-3-Clause, the Sequential/
 
 ### Fork
 
-`CtrlrX/` is [hjanetzek/muse-ctrlrx](https://github.com/hjanetzek/muse-ctrlrx), branch `muse`. Its history starts with the tree of CtrlrX 5.6.36 and doesn't contain upstream's history, which has more than 350 MB of bundled libraries and build products. `muse/upstream-commit` names the upstream commit the branch is synced to. The commits:
+`CtrlrX/` is [hjanetzek/mamuse-ctrlrx](https://github.com/hjanetzek/mamuse-ctrlrx), branch `muse`. Its history starts with the tree of CtrlrX 5.6.36 and doesn't contain upstream's history, which has more than 350 MB of bundled libraries and build products. `muse/upstream-commit` names the upstream commit the branch is synced to. The commits:
 
 1. `CtrlrX 5.6.36 for muse`: upstream's tree without the paths listed in `muse/removed-paths`:
    - `JUCE/`, `JuceLibraryCode/`: the plugins use gearmulator's JUCE.
@@ -74,7 +74,7 @@ Licences of the collections: dnaldoog's panels are BSD-3-Clause, the Sequential/
 
 Tested with a branch made like this one from an upstream commit 30 commits older than 5.6.36: synced to 5.6.36, its tree equalled the one of the `muse` branch.
 
-The remote `upstream` is damiensellier/CtrlrX, `me` is muse-ctrlrx. Changes for upstream have to be ported onto upstream's history for a pull request.
+The remote `upstream` is damiensellier/CtrlrX, `me` is mamuse-ctrlrx. Changes for upstream have to be ported onto upstream's history for a pull request.
 
 ### Integration
 
