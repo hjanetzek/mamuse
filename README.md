@@ -2,7 +2,7 @@
 
 Hardware synthesizers emulated by [MAME](https://www.mamedev.org), played as CLAP and VST3 instrument plugins.
 
-mamuse (ma'muse) is MAME + muse (see also [the name](#the-name)).
+mamuse is MAME + muse, pronounced like Pampelmuse (see also [the name](#the-name)).
 
 ![The Wersi EX-20 in MAME-EX20, its front panel drawn from MAME's layout](docs/images/ex20.png)
 
