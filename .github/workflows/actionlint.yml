@@ -1,0 +1,25 @@
+name: actionlint
+
+# Checks the workflow files when they change.
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/**' ]
+  pull_request:
+    paths: [ '.github/workflows/**' ]
+  workflow_dispatch:
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download actionlint
+      id: get_actionlint
+      run: bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12
+
+    - name: Check the workflow files
+      run: ${{ steps.get_actionlint.outputs.executable }} -color
